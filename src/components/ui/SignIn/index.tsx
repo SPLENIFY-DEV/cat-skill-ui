@@ -5,6 +5,11 @@ import TabSwitcher from './TabSwitcher'
 import PhoneForm, { defaultCountry, type Country } from './PhoneForm'
 import EmailForm from './EmailForm'
 import OtpVerify from './OtpVerify'
+import axios from 'axios'
+import { useNavigate } from 'react-router-dom';
+
+
+const API_BASE_URL = 'http://localhost:8000/api/v1';
 
 type Tab = 'phone' | 'email'
 
@@ -14,10 +19,42 @@ export default function SignIn() {
   const [phone, setPhone] = useState('')
   const [email, setEmail] = useState('')
   const [showOtp, setShowOtp] = useState(false)
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
+
 
   if (showOtp) {
     return <OtpVerify onBack={() => setShowOtp(false)} />
   }
+  const handleLogin = async () => {
+    // Determine identifier
+    const identifier = tab === 'phone' ? phone : email;
+    if (!identifier) {
+      setError('Please fill in all fields');
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+
+    try {
+      const response = await axios.post(
+        `${API_BASE_URL}/customer/auth/login`,
+        { identifier: identifier },
+        { withCredentials: true }
+      );
+
+      // On success – cookies are set automatically
+      console.log('Login success', response.data);
+      navigate('/customer/dashboard'); // adjust route
+    } catch (err: any) {
+      const msg = err.response?.data?.message || 'Login failed';
+      setError(msg);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <AuthLayout>
@@ -49,13 +86,24 @@ export default function SignIn() {
         <EmailForm email={email} onChange={setEmail} />
       )}
 
+      {error && <div className="mt-3 text-sm text-red-600 bg-red-50 p-2 rounded">{error}</div>}
+
       <button
+        type="button"
+        onClick={handleLogin}
+        disabled={loading}
+        className="w-full mt-5 py-3 bg-primary hover:bg-primary/90 text-white text-sm font-semibold rounded-lg transition-colors disabled:opacity-50"
+      >
+        {loading ? 'Signing in...' : 'Sign In'}
+      </button>
+
+      {/* <button
         type="button"
         onClick={() => setShowOtp(true)}
         className="w-full mt-5 py-3 bg-primary hover:bg-primary/90 text-white text-sm font-semibold rounded-lg transition-colors"
       >
         Continue
-      </button>
+      </button> */}
 
       <p className="text-center text-md text-gray-500 mt-5">
         Don&apos;t have an account?{' '}
