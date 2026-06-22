@@ -1,7 +1,12 @@
-export default function GoogleButton() {
+export default function GoogleButton({role = 'customer' }) {
+  const handleClick = () => {
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
+    window.location.href = `${apiUrl}/auth/google/${role}`;
+  }
   return (
     <button
       type="button"
+      onClick={handleClick}
       className="w-full flex items-center justify-center gap-2 border rounded-lg py-2.5 text-sm font-medium hover:bg-gray-50 transition-colors mb-5"
       style={{ borderColor: '#E8E8E9', color: '#69686D' }}
     >

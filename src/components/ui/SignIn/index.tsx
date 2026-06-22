@@ -65,7 +65,7 @@ export default function SignIn() {
         Welcome back, please enter your details.
       </p>
 
-      <GoogleButton />
+      <GoogleButton role="customer"/>
 
       <div className="flex items-center gap-3 mb-5">
         <div className="flex-1 h-px bg-gray-200" />
